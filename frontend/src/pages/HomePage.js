@@ -1,7 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
+import { useRef } from 'react';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 const HomePage = () => {
+  const contentRef = useRef();
+
+  const generatePdf = async () => {
+      const element = contentRef.current;
+      const canvas = await html2canvas(element);
+      const imgData = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF();
+      const imgWidth = 190; // A4 size width in mm
+      const imgHeight = (canvas.height * imgWidth*2) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+      pdf.save('document.pdf');
+  };
   const [empData, setEmpData] = useState();
 
   const getAllData = async () => {
@@ -44,14 +60,15 @@ const HomePage = () => {
             </p>
           </div>
           <Link to={"/addemployee"}>
-            <div>
+            <div className="flex flex-row gap-4">
               <button className="rounded-md bg-indigo-600 px-3.5 py-1.5 text-sm font-semibold leading-7 text-white hover:bg-indigo-500 ">
                 Add Employee
               </button>
+              <button onClick={generatePdf} className="rounded-md bg-indigo-600 px-3.5 py-1.5 text-sm font-semibold leading-7 text-white hover:bg-indigo-500 ">Download PDF</button>
             </div>
           </Link>
         </div>
-        <div className="flex flex-col mt-6">
+        <div className="flex flex-col mt-6 " ref={contentRef}>
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
               <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
